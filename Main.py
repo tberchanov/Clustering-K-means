@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
 from point import Point
+from point import get_points_extremums
+from point import create_random_point
+
 
 # Only for system, where need absolute path
 PATH_PREFIX = "/home/anatoly/Desktop/Clustering/"
@@ -36,24 +39,44 @@ def convert_line_to_point(line):
         
     return point
 
-
+def show_points_plot(points):
+    xx = list()
+    yy = list()
+    for point in points:
+        xx.append(point.x)
+        yy.append(point.y)
+    plt.plot(xx, yy, '.')
+    plt.show()
 
 def show_menu():
     print("0. Exit")
     print("1. Show plot")
-    print("2. Add random point")
-    print("3. Add point")
-    print("4. Cluster")
+    print("2. Add random points")
+    # print("3. Add point")
+    # print("4. Cluster")
+
+def generate_random_points():
+    count = input("Count: ")
+    
+    if count.isdigit():
+        count = int(count)
+    else:
+        print("Invalid count!")
+        return
+    
+    points_extremums = get_points_extremums(points)
+    max_x = points_extremums["max_x"]
+    max_y = points_extremums["max_y"]
+    for i in range(count):
+        rand_point = create_random_point(0, max_x, 0, max_y)
+        points.append(rand_point)
 
 # begin
 
 lines = read_file(FILE_NAME)
 points = convert_lines_to_points(lines)
-print(points)
 
-# print(point)
-
-isFinished = True
+isFinished = False
 while not isFinished:
     show_menu()
     command = input("Command: ")
@@ -63,16 +86,13 @@ while not isFinished:
     if command == 0:
         isFinished = True
     elif command == 1:
-        print(spam_tupples)
+        show_points_plot(points)
     elif command == 2:
-        print(ham_tupples)
-    elif command == 3:
-        show_plot(spam_tupples[:20], "Top 20 spam words")
-    elif command == 4:
-        show_plot(ham_tupples[:20], "Top 20 ham words")
-    elif command == 5:
-        message = input("Message: ")
-        check_message(message)
+        generate_random_points()
+    # elif command == 3:
+    #     show_plot(spam_tupples[:20], "Top 20 spam words")
+    # elif command == 4:
+    #     show_plot(ham_tupples[:20], "Top 20 ham words")
     else:
         print("Incorrect command!")
     
