@@ -1,8 +1,9 @@
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 from point import Point
 from point import get_points_extremums
 from point import create_random_point
-
+import numpy as np
 
 # Only for system, where need absolute path
 PATH_PREFIX = "/home/anatoly/Desktop/Clustering/"
@@ -39,23 +40,46 @@ def convert_line_to_point(line):
         
     return point
 
-def show_points_plot(points):
+def show_points_plot(points, centroids, add_picker):
     xx = list()
     yy = list()
     for point in points:
         xx.append(point.x)
         yy.append(point.y)
-    plt.plot(xx, yy, '.')
+        
+    if add_picker:
+        blue_point, = plt.plot(xx, yy, '.', zorder=-1, picker=line_picker)
+    else:
+        blue_point, = plt.plot(xx, yy, '.', zorder=-1)
+
+    xx_c = list()
+    yy_c = list()
+    for centroid in centroids:
+        xx_c.append(centroid.x)
+        yy_c.append(centroid.y)
+    red_point, = plt.plot(xx_c, yy_c, 'ro')
+
+    plt.legend([blue_point, red_point], ["Point", "Centroid"])
+    
     plt.show()
+
+def line_picker(line, mouseevent):
+    x = mouseevent.xdata
+    y = mouseevent.ydata
+    centroids.append(Point(x, y))
+
+    plt.scatter(x, y, c='red')
+    plt.pause(0.05)
+    return False, dict()
 
 def show_menu():
     print("0. Exit")
     print("1. Show plot")
-    print("2. Add random points")
-    # print("3. Add point")
+    print("2. Add random centroids")
+    print("3. Add centroid")
     # print("4. Cluster")
 
-def generate_random_points():
+def generate_random_centroids(points, centroids):
     count = input("Count: ")
     
     if count.isdigit():
@@ -69,12 +93,23 @@ def generate_random_points():
     max_y = points_extremums["max_y"]
     for i in range(count):
         rand_point = create_random_point(0, max_x, 0, max_y)
-        points.append(rand_point)
+        centroids.append(rand_point)
+
+def add_centroid(centroids):
+    x = input("X: ")
+    y = input("Y: ")
+    x = float(x)
+    y = float(y)
+    centroids.append(Point(x, y))
+
+def onpick(event):
+    print('onpick point:', event.xdata, event.ydata)
 
 # begin
 
 lines = read_file(FILE_NAME)
 points = convert_lines_to_points(lines)
+centroids = list()
 
 isFinished = False
 while not isFinished:
@@ -86,13 +121,14 @@ while not isFinished:
     if command == 0:
         isFinished = True
     elif command == 1:
-        show_points_plot(points)
+        show_points_plot(points, centroids, False)
     elif command == 2:
-        generate_random_points()
-    # elif command == 3:
-    #     show_plot(spam_tupples[:20], "Top 20 spam words")
+        generate_random_centroids(points, centroids)
+    elif command == 3:
+        # add_centroid(centroids)
+        show_points_plot(points, centroids, True)
     # elif command == 4:
-    #     show_plot(ham_tupples[:20], "Top 20 ham words")
+    #     show_points_plot(points, centroids, True)
     else:
         print("Incorrect command!")
     
