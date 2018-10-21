@@ -1,4 +1,5 @@
 import random
+import math
 
 class Point:
     x = -1.0
@@ -13,6 +14,14 @@ class Point:
 
     def __repr__(self):
         return str(self)
+
+    def __hash__(self):
+        return hash((self.x, self.y))
+
+    def __eq__(self, other):
+        if not isinstance(other, Point):
+            return False
+        return (self.x == other.x) and (self.y == other.y)
 
 def get_points_extremums(points):
     if not points:
@@ -42,3 +51,7 @@ def create_random_point(min_x, max_x, min_y, max_y):
     rand_x = random.randint(min_x, max_x - 1) + random.random()
     rand_y = random.randint(min_y, max_y - 1) + random.random()
     return Point(rand_x, rand_y)
+
+def calculate_distance(p1, p2):
+    return math.sqrt(math.pow(p1.x - p2.x, 2) +
+                     math.pow(p1.y - p2.y, 2))

@@ -3,6 +3,7 @@ import matplotlib.lines as mlines
 from point import Point
 from point import get_points_extremums
 from point import create_random_point
+from point import calculate_distance
 import numpy as np
 
 # Only for system, where need absolute path
@@ -77,7 +78,7 @@ def show_menu():
     print("1. Show plot")
     print("2. Add random centroids")
     print("3. Add centroid")
-    # print("4. Cluster")
+    print("4. Cluster")
 
 def generate_random_centroids(points, centroids):
     count = input("Count: ")
@@ -102,8 +103,74 @@ def add_centroid(centroids):
     y = float(y)
     centroids.append(Point(x, y))
 
-def onpick(event):
-    print('onpick point:', event.xdata, event.ydata)
+def clusterization(points, centroids):
+    clusters_dic = cluster_K_means(points, centroids)
+    show_clusterization_result(clusters_dic)
+
+def show_clusterization_result(clusters_dic):
+    for points in clusters_dic.values():
+        xx = list()
+        yy = list()
+        for point in points:
+            xx.append(point.x)
+            yy.append(point.y)
+        plt.plot(xx, yy, '.')
+
+    centroids = clusters_dic.keys()
+    xx_c = list()
+    yy_c = list()
+    for centroid in centroids:
+        xx_c.append(centroid.x)
+        yy_c.append(centroid.y)
+        plt.plot(xx_c, yy_c, 'ro')
+
+    plt.show()
+
+def cluster_K_means(points, centroids):
+    while True:
+        clusters_dic = split_by_centroids(points, centroids)
+        normalized_centroids = get_normalized_centroids(clusters_dic)
+
+        if centroids == normalized_centroids:
+            return clusters_dic
+        else:
+            centroids = normalized_centroids
+
+def get_normalized_centroids(clusters_dic):
+    norm_centroids = list()
+    for points in clusters_dic.values():
+        norm_centroid = get_normalized_centroid(points)
+        norm_centroids.append(norm_centroid)
+    return norm_centroids
+
+def get_normalized_centroid(points):
+    norm_x = 0
+    norm_y = 0
+    for point in points:
+        norm_x += point.x
+        norm_y += point.y
+    norm_x = norm_x / len(points)
+    norm_y = norm_y / len(points)
+
+    return Point(norm_x, norm_y)
+
+def split_by_centroids(points, centroids):
+    clusters_dic = dict()
+    for centroid in centroids:
+        clusters_dic[centroid] = list()
+
+    for point in points:
+        closer_centroid = centroids[0]
+        closer_centroid_distance = calculate_distance(point, closer_centroid)
+        for centroid in centroids:
+            distance = calculate_distance(point, centroid)
+            if distance < closer_centroid_distance:
+                closer_centroid_distance = distance
+                closer_centroid = centroid
+        
+        clusters_dic[closer_centroid].append(point)
+
+    return clusters_dic
 
 # begin
 
@@ -125,10 +192,13 @@ while not isFinished:
     elif command == 2:
         generate_random_centroids(points, centroids)
     elif command == 3:
-        # add_centroid(centroids)
-        show_points_plot(points, centroids, True)
-    # elif command == 4:
-    #     show_points_plot(points, centroids, True)
+        choose_dots_in_chart = True
+        if choose_dots_in_chart:
+            show_points_plot(points, centroids, True)
+        else:
+            add_centroid(centroids)
+    elif command == 4:
+        clusterization(points, centroids)
     else:
         print("Incorrect command!")
     
