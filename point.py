@@ -48,8 +48,8 @@ def get_points_extremums(points):
             "min_y" : min_y, "max_y" : max_y}
 
 def create_random_point(min_x, max_x, min_y, max_y):
-    rand_x = random.randint(min_x, max_x - 1) + random.random()
-    rand_y = random.randint(min_y, max_y - 1) + random.random()
+    rand_x = random.uniform(min_x, max_x)
+    rand_y = random.uniform(min_y, max_y)
     return Point(rand_x, rand_y)
 
 def calculate_distance(p1, p2):
