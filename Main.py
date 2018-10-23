@@ -5,13 +5,13 @@ from point import get_points_extremums
 from point import create_random_point
 from point import calculate_distance
 import numpy as np
+import os
 
-# Only for system, where need absolute path
-PATH_PREFIX = "/home/anatoly/Desktop/Clustering/"
-FILE_NAME = "s2.txt"
+DATA_FILES_DIR = "./Data"
 
 def read_file(fileName):
-    file = open(FILE_NAME,"r", encoding='windows-1251')
+    fileName = DATA_FILES_DIR + '/' + fileName
+    file = open(fileName, "r", encoding='windows-1251')
     lines = file.readlines()
     file.close()
     return lines
@@ -75,10 +75,11 @@ def line_picker(line, mouseevent):
 
 def show_menu():
     print("0. Exit")
-    print("1. Show plot")
-    print("2. Add random centroids")
-    print("3. Add centroid")
-    print("4. Cluster")
+    print('1. Read data')
+    print("2. Show plot")
+    print("3. Add random centroids")
+    print("4. Add centroid")
+    print("5. Cluster")
 
 def generate_random_centroids(points, centroids):
     count = input("Count: ")
@@ -172,10 +173,34 @@ def split_by_centroids(points, centroids):
 
     return clusters_dic
 
+def choose_data_file():
+    data_files = os.listdir(DATA_FILES_DIR)
+    i = 1
+    for data_file in data_files:  
+        print(str(i) + ". " + data_file)
+        i += 1
+
+    file_index = input("File: ")
+    is_file_index_valid = (not file_index.isdigit()) or int(file_index) < 1
+    is_file_index_valid = is_file_index_valid or int(file_index) > len(data_files)
+    if is_file_index_valid:
+        print('Incorrect file index!')
+        return ''
+
+    file_index = int(file_index) - 1
+    return data_files[file_index]
+
+def read_data():
+    data_file = choose_data_file()
+    if not data_file:
+        return list()
+
+    lines = read_file(data_file)
+    return convert_lines_to_points(lines)
+
 # begin
 
-lines = read_file(FILE_NAME)
-points = convert_lines_to_points(lines)
+points = list()
 centroids = list()
 
 isFinished = False
@@ -188,16 +213,21 @@ while not isFinished:
     if command == 0:
         isFinished = True
     elif command == 1:
-        show_points_plot(points, centroids, False)
+        data_points = read_data()
+        if data_points:
+            points = data_points
+            centroids.clear()
     elif command == 2:
-        generate_random_centroids(points, centroids)
+        show_points_plot(points, centroids, False)
     elif command == 3:
+        generate_random_centroids(points, centroids)
+    elif command == 4:
         choose_dots_in_chart = True
         if choose_dots_in_chart:
             show_points_plot(points, centroids, True)
         else:
             add_centroid(centroids)
-    elif command == 4:
+    elif command == 5:
         clusterization(points, centroids)
     else:
         print("Incorrect command!")
