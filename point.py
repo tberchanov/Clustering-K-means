@@ -1,6 +1,8 @@
 import random
 import math
 
+random.seed(0)
+
 class Point:
     x = -1.0
     y = -1.0

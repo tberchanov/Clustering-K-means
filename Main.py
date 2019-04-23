@@ -6,6 +6,7 @@ from point import create_random_point
 from point import calculate_distance
 import numpy as np
 import os
+import time
 
 DATA_FILES_DIR = "./Data"
 
@@ -105,7 +106,10 @@ def add_centroid(centroids):
     centroids.append(Point(x, y))
 
 def clusterization(points, centroids):
+    start_time = time.time()
     clusters_dic = cluster_K_means(points, centroids)
+    end_time = time.time()
+    print("Processing time: ", end_time - start_time)
     show_clusterization_result(clusters_dic)
 
 def show_clusterization_result(clusters_dic):
@@ -145,13 +149,17 @@ def get_normalized_centroids(clusters_dic):
     return norm_centroids
 
 def get_normalized_centroid(points):
+    points_quantity = len(points)
+    if points_quantity == 0:
+        return Point(0, 0)
+
     norm_x = 0
     norm_y = 0
     for point in points:
         norm_x += point.x
         norm_y += point.y
-    norm_x = norm_x / len(points)
-    norm_y = norm_y / len(points)
+    norm_x = norm_x / points_quantity
+    norm_y = norm_y / points_quantity
 
     return Point(norm_x, norm_y)
 
